@@ -102,6 +102,26 @@ def concert_detail(request, id):
     pass
 
 
+def concert_attendee(request):
+    if request.user.is_authenticated:
+        if request.method == "POST":
+            concert_id = request.POST.get("concert_id")
+            attendee_status = request.POST.get("attendee_choice")
+            concert_attendee_object = ConcertAttending.objects.filter(
+                concert_id=concert_id, user=request.user).first()
+            if concert_attendee_object:
+                concert_attendee_object.attending = attendee_status
+                concert_attendee_object.save()
+            else:
+                ConcertAttending.objects.create(concert_id=concert_id,
+                                                user=request.user,
+                                                attending=attendee_status)
+
+        return HttpResponseRedirect(reverse("concerts"))
+
+    return HttpResponseRedirect(reverse("index"))
+
+    
 def concerts(request):
     if request.user.is_authenticated:
         lst_of_concert = []
